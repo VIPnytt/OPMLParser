@@ -3,50 +3,13 @@ namespace vipnytt\OPMLParser;
 
 use SimpleXMLElement;
 
-class Render
+class Render implements OPMLInterface
 {
-    /**
-     * Encoding to use if not provided
-     */
-    const ENCODING_DEFAULT = 'UTF-8';
-
-    /**
-     * Optional <head> elements
-     */
-    const OPTIONAL_HEAD_ELEMENTS = [
-        'title',
-        'dateCreated',
-        'dateModified',
-        'ownerName',
-        'ownerEmail',
-        'ownerId',
-        'docs',
-        'expansionState',
-        'vertScrollState',
-        'windowTop',
-        'windowLeft',
-        'windowBottom',
-        'windowRight'
-    ];
-
-    /**
-     * OPML versions supported
-     */
-    const SUPPORTED_VERSIONS = [
-        '2.0',
-        '1.0'
-    ];
-
-    /**
-     * Default OPML version to use, if none is set
-     */
-    const VERSION_DEFAULT = '2.0';
-
     /**
      * Version to use for the build
      * 2.0 - `text` attribute is required
      * 1.0 - for legacy support
-     * @var bool
+     * @var string
      */
     protected $version;
 
@@ -64,7 +27,7 @@ class Render
      * @param string $version '2.0' if `text` attribute is required, '1.0' for legacy
      * @throws Exceptions\RenderException
      */
-    public function __construct($array, $encoding = self::ENCODING_DEFAULT, $version = self::VERSION_DEFAULT)
+    public function __construct($array, $encoding = self::ENCODING, $version = self::VERSION_DEFAULT)
     {
         $this->version = $version;
         if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
@@ -88,7 +51,7 @@ class Render
         // Create outline elements
         $body = $opml->addChild('body');
         foreach ($array['body'] as $outline) {
-            $this->render_outline($body, $outline);
+            $this->renderOutline($body, $outline);
         }
         $this->object = $opml;
     }
@@ -96,33 +59,33 @@ class Render
     /**
      * Create a XML outline object in a parent object.
      *
-     * @param SimpleXMLElement $parent_elt is the parent object of current outline
+     * @param SimpleXMLElement $parent is the parent object of current outline
      * @param array $outline array representing an outline object
      * @return void
      * @throws Exceptions\RenderException
      */
-    protected function render_outline($parent_elt, $outline)
+    protected function renderOutline($parent, $outline)
     {
-        $outline_elt = $parent_elt->addChild('outline');
-        $text_is_present = false;
+        $outlineSub = $parent->addChild('outline');
+        $textIsPresent = false;
         foreach ($outline as $key => $value) {
             // Only outlines can be an array and so we consider children are also outline elements.
             if ($key === '@outlines' && is_array($value)) {
-                foreach ($value as $outline_child) {
-                    $this->render_outline($outline_elt, $outline_child);
+                foreach ($value as $outlineChild) {
+                    $this->renderOutline($outlineSub, $outlineChild);
                 }
             } elseif (is_array($value)) {
                 throw new Exceptions\RenderException('Type of outline elements cannot be array: ' . $key);
             } else {
                 // Detect text attribute is present, that's good :)
                 if ($key === 'text') {
-                    $text_is_present = true;
+                    $textIsPresent = true;
                 }
 
-                $outline_elt->addAttribute($key, $value);
+                $outlineSub->addAttribute($key, $value);
             }
         }
-        if (!$text_is_present && $this->version == '2.0') {
+        if (!$textIsPresent && $this->version == '2.0') {
             throw new Exceptions\RenderException('The text element must be present for all outlines (applies to version 2.0 only)');
         }
     }

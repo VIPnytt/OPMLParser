@@ -4,33 +4,10 @@ namespace vipnytt;
 use DOMDocument;
 use SimpleXMLElement;
 use vipnytt\OPMLParser\Exceptions;
+use vipnytt\OPMLParser\OPMLInterface;
 
-class OPMLParser
+class OPMLParser implements OPMLInterface
 {
-    /**
-     * Encoding
-     */
-    const ENCODING = 'UTF-8';
-
-    /**
-     * Optional <head> elements
-     */
-    const OPTIONAL_HEAD_ELEMENTS = [
-        'title',
-        'dateCreated',
-        'dateModified',
-        'ownerName',
-        'ownerEmail',
-        'ownerId',
-        'docs',
-        'expansionState',
-        'vertScrollState',
-        'windowTop',
-        'windowLeft',
-        'windowBottom',
-        'windowRight'
-    ];
-
     /**
      * XML content
      * @var string
@@ -85,7 +62,7 @@ class OPMLParser
         // Then, we get body outlines. Body must contain at least one outline element.
         foreach ($opml->body->children() as $key => $value) {
             if ($key === 'outline') {
-                $this->result['body'][] = $this->parse_outline($value);
+                $this->result['body'][] = $this->parseOutline($value);
             }
         }
     }
@@ -93,23 +70,23 @@ class OPMLParser
     /**
      * Parse an XML object as an outline object and return corresponding array
      *
-     * @param SimpleXMLElement $outline_xml the XML object we want to parse
+     * @param SimpleXMLElement $outlineXML the XML object we want to parse
      * @return array corresponding to an outline and following format described above
      */
-    protected function parse_outline(SimpleXMLElement $outline_xml)
+    protected function parseOutline(SimpleXMLElement $outlineXML)
     {
         $outline = [];
-        foreach ($outline_xml->attributes() as $key => $value) {
+        foreach ($outlineXML->attributes() as $key => $value) {
             $outline[$key] = (string)$value;
         }
         // Bug fix for OPMLs witch contains `title` but not the required `text`
         if (empty($outline['text']) && isset($outline['title'])) {
             $outline['text'] = $outline['title'];
         }
-        foreach ($outline_xml->children() as $key => $value) {
+        foreach ($outlineXML->children() as $key => $value) {
             // An outline may contain any number of outline children
             if ($key === 'outline') {
-                $outline['@outlines'][] = $this->parse_outline($value);
+                $outline['@outlines'][] = $this->parseOutline($value);
             }
         }
         return $outline;
@@ -129,7 +106,7 @@ class OPMLParser
      * Validate the parsed XML array
      * Note: The parser support parsing of OPMLs with missing content
      *
-     * @return string|false Validated string on success, false on failure
+     * @return \SimpleXMLElement|false Validated object on success, false on failure
      */
     public function validate()
     {
@@ -138,6 +115,6 @@ class OPMLParser
         } catch (Exceptions\RenderException $e) {
             return false;
         }
-        return $render->asString();
+        return $render->asXMLObject();
     }
 }

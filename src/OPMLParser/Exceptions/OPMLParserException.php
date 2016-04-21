@@ -1,6 +1,6 @@
 <?php
 namespace vipnytt\OPMLParser\Exceptions;
 
-class ParseException extends OPMLParserException
+class OPMLParserException extends \Exception
 {
 }

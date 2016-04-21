@@ -38,7 +38,7 @@ $array = $parser->getResult()
 
 // Validate the result
 try {
-    $string = $parser->validate() // string
+    $object = $parser->validate()  // \SimpleXMLElement
 } catch (vipnytt\Exceptions\RenderException $e) {
     // The XML is not valid OPML
 }
