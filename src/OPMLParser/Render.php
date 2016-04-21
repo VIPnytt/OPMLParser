@@ -1,7 +1,6 @@
 <?php
 namespace vipnytt\OPMLParser;
 
-use DOMDocument;
 use SimpleXMLElement;
 
 class Render
@@ -61,16 +60,17 @@ class Render
      * Constructor
      *
      * @param array $array is the array we want to render and must follow structure defined above
+     * @param string $encoding character encoding to use
      * @param string $version '2.0' if `text` attribute is required, '1.0' for legacy
      * @throws Exceptions\RenderException
      */
-    public function __construct($array, $version = self::VERSION_DEFAULT)
+    public function __construct($array, $encoding = self::ENCODING_DEFAULT, $version = self::VERSION_DEFAULT)
     {
         $this->version = $version;
         if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
             throw new Exceptions\RenderException('OPML version `' . $this->version . '` not supported');
         }
-        $opml = new SimpleXMLElement('<opml></opml>');
+        $opml = new SimpleXMLElement('<?xml version="1.0" encoding="' . $encoding . '"?><opml></opml>');
         $opml->addAttribute('version', (string)$this->version);
         // Create head element. It is optional but head element will exist in the final XML object.
         $head = $opml->addChild('head');
@@ -135,20 +135,5 @@ class Render
     public function asXMLObject()
     {
         return $this->object;
-    }
-
-    /**
-     * Return as an OPML string
-     *
-     * @param string $encoding Character encoding
-     * @return string
-     */
-    public function asString($encoding = self::ENCODING_DEFAULT)
-    {
-        $dom = new DOMDocument('1.0', $encoding);
-        $dom->loadXML($this->object->asXML());
-        $dom->encoding = $encoding;
-        $dom->preserveWhiteSpace = false;
-        return preg_replace("/\r\n|\n|\r/", '', $dom->saveXML());
     }
 }

@@ -19,7 +19,8 @@ class RenderTest extends \PHPUnit_Framework_TestCase
     {
         $parser = new Render($array);
         $this->assertInstanceOf('vipnytt\OPMLParser\Render', $parser);
-        $this->assertEquals($result, $parser->asString(false));
+        $this->assertInstanceOf(\SimpleXMLElement::class, $parser->asXMLObject());
+        $this->assertEquals($result, $parser->asXMLObject()->asXML());
     }
 
     /**
@@ -37,9 +38,7 @@ class RenderTest extends \PHPUnit_Framework_TestCase
                         ]
                     ]
                 ],
-                <<<XML
-<?xml version="1.0" encoding="UTF-8"?><opml version="2.0"><head/><body><outline text="test"/></body></opml>
-XML
+                '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL . '<opml version="2.0"><head/><body><outline text="test"/></body></opml>' . PHP_EOL,
             ]
         ];
     }

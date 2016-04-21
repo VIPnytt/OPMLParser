@@ -51,8 +51,8 @@ $render = new vipnytt\OPMLParser\Render($array, $version = '2.0');
 // as SimpleXMLElement object
 $object = $render->asXMLObject(); // \SimpleXMLElement
 
-// as String
-$object = $render->asString(); // string
+// as XML string
+$string = $render->asXMLObject()->asXML(); // string
 ```
 
 Note: OPML version 2.0 is used by default, unless you have specified otherwise.
