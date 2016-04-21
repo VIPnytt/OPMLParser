@@ -24,7 +24,7 @@ interface OPMLInterface
     /**
      * Default OPML version to use, if none is set
      */
-    const VERSION_DEFAULT = '2.0';
+    const VERSION = '2.0';
 
     /**
      * Optional <head> elements

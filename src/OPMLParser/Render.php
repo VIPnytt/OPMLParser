@@ -11,7 +11,7 @@ class Render implements OPMLInterface
      * 1.0 - for legacy support
      * @var string
      */
-    protected $version;
+    protected $version = self::VERSION;
 
     /**
      * Rendered XML object
@@ -27,7 +27,7 @@ class Render implements OPMLInterface
      * @param string $version '2.0' if `text` attribute is required, '1.0' for legacy
      * @throws Exceptions\RenderException
      */
-    public function __construct($array, $encoding = self::ENCODING, $version = self::VERSION_DEFAULT)
+    public function __construct($array, $encoding = self::ENCODING, $version = self::VERSION)
     {
         $this->version = $version;
         if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
@@ -74,16 +74,15 @@ class Render implements OPMLInterface
                 foreach ($value as $outlineChild) {
                     $this->renderOutline($outlineSub, $outlineChild);
                 }
+                continue;
             } elseif (is_array($value)) {
                 throw new Exceptions\RenderException('Type of outline elements cannot be array: ' . $key);
-            } else {
-                // Detect text attribute is present, that's good :)
-                if ($key === 'text') {
-                    $textIsPresent = true;
-                }
-
-                $outlineSub->addAttribute($key, $value);
             }
+            // Detect text attribute is present, that is good :)
+            if ($key === 'text') {
+                $textIsPresent = true;
+            }
+            $outlineSub->addAttribute($key, $value);
         }
         if (!$textIsPresent && $this->version == '2.0') {
             throw new Exceptions\RenderException('The text element must be present for all outlines (applies to version 2.0 only)');

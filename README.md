@@ -6,7 +6,7 @@
 [![Packagist](https://img.shields.io/packagist/v/vipnytt/opmlparser.svg)](https://packagist.org/packages/vipnytt/opmlparser)
 [![Join the chat at https://gitter.im/VIPnytt/OPMLParser](https://badges.gitter.im/VIPnytt/OPMLParser.svg)](https://gitter.im/VIPnytt/OPMLParser)
 
-# OPML parser class
+# OPML parser
 PHP class to parse OPML documents according to [OPML 1.0](http://dev.opml.org/spec1.html) and [OPML 2.0 specifications](http://dev.opml.org/spec2.html).
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/7393a662-7988-4a2a-820b-ebac01a1a91f/big.png)](https://insight.sensiolabs.com/projects/7393a662-7988-4a2a-820b-ebac01a1a91f)
@@ -37,11 +37,7 @@ $parser = new vipnytt\OPMLParser($xml);
 $array = $parser->getResult()
 
 // Validate the result
-try {
-    $object = $parser->validate()  // \SimpleXMLElement
-} catch (vipnytt\Exceptions\RenderException $e) {
-    // The XML is not valid OPML
-}
+$object = $parser->validate()  // \SimpleXMLElement on success | false on failure
 ```
 
 ### Array rendering example
