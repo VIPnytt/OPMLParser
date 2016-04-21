@@ -29,6 +29,7 @@ class OPMLParser implements OPMLInterface
     public function __construct($xml)
     {
         $this->xml = $xml;
+        libxml_use_internal_errors();
         $dom = new DOMDocument();
         $dom->recover = true;
         $dom->strictErrorChecking = false;
